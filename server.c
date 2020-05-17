@@ -34,12 +34,22 @@ int do_server_loop(SSL *ssl)
         /*어떤 client인지 구분하는 방법: pthread_self()이용한다.*/
         for(int i=0;i<clientnum;i++){
             if(pthread_self()==tid[i])readfromwho=i;}
+        /*반드시 이곳에서 lock을 걸고*/
+        pthread_mutex_lock(&mutex);
+        fprintf(stdout, "=======mutex_lock(%d)======\n",readfromwho);
         fprintf(stdout,"From client[%d]:",readfromwho);
         /*읽은 내용 서버에 보여준다*/
         fprintf(stdout, "%s", buf);
+        
         /*download요청이 있을 때, 서버에서 할일을 적으면 됨*/
         if(strcmp(buf,"download\n")==0){
-            fprintf(stdout,"download request from client[%d]",readfromwho);}
+            fprintf(stdout,"download request from client[%d]\n",readfromwho);}
+
+        fprintf(stdout, "=======mutex_unlock(%d)======\n\n",readfromwho);
+       
+        /*반드시 이곳에서 unlock을 해야한다*/
+        pthread_mutex_unlock(&mutex);
+
         /*buffer를 지워야 한다*/
         memset(buf, 0, sizeof(buf));
 

@@ -1,7 +1,6 @@
 #!/bin/bash
 function printEcho {
-	echo ">"
-	echo "	$1"
+	echo ">	$1"
 }
 printEcho "gcc -g -Wall -pthread -c reentrant.c -o reentrant.o"
 gcc -g -Wall -pthread -c reentrant.c -o reentrant.o

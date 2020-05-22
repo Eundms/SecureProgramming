@@ -47,11 +47,13 @@ int do_server_loop(SSL *ssl)
             pthread_mutex_unlock(&mutex);
             break;
         }
-        /*download요청*/
+        /*download요청-이부분을 client에서 받기 위해 client thread를 하나 만들어야 한다*/
         if(strcmp(buf,"DOWNLOAD\n")==0){
             fprintf(stdout,"download request from client[%d]\n",readfromwho);
             fp=fopen("./downloadfile.txt","r");
-            
+            /*char readbuf[80];
+            fgets(readbuf,sizeof(readbuf),fp);
+            SSL_write(clients[readfromwho],readbuf,strlen(readbuf));*/
         }
         /*write 요청*/
         if(strcmp(buf,"WRITE\n")==0){

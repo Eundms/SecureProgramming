@@ -11,7 +11,11 @@ SSL_CTX *setup_client_ctx(void)
         int_error ("Error loading private key from file");
     return ctx;
 }
+/*여기 추가할거임
+void THREAD_CC (void *arg)
+{	ssl *ssl=(SSL*)arg;
 
+}*/
 
 int  do_client_loop(SSL *ssl)
 {

@@ -40,25 +40,31 @@ int do_server_loop(SSL *ssl)
         fprintf(stdout,"Server read from client[%d]:",readfromwho);
         /*읽은 내용 서버에 보여준다*/
         fprintf(stdout, "%s", buf);
-        
+        /*SSLCLOSE요청*/
+        if(strcmp(buf,"CLOSE\n")==0){
+            fprintf(stdout,"SSLCLOSE request from client[%d]\n",readfromwho);
+            fprintf(stdout, "=======mutex_unlock(%d)======\n",readfromwho);
+            pthread_mutex_unlock(&mutex);
+            break;
+        }
         /*download요청*/
-        if(strcmp(buf,"download\n")==0){
+        if(strcmp(buf,"DOWNLOAD\n")==0){
             fprintf(stdout,"download request from client[%d]\n",readfromwho);
             fp=fopen("./downloadfile.txt","r");
             
         }
         /*write 요청*/
-        if(strcmp(buf,"write\n")==0){
+        if(strcmp(buf,"WRITE\n")==0){
             fprintf(stdout,"write request from client[%d]\n",readfromwho);
             fp=fopen("./writefile.txt","a+w");
-            printf("client[%d]가 파일에 쓰는 중...\n",readfromwho);//fprintf(stdout,"client[%d]가 파일에 쓰는 중...\n",readfromwho);
+            printf("client[%d]가 파일에 쓰는 중...\n",readfromwho);//비교: fprintf(stdout,"client[%d]가 파일에 쓰는 중...\n",readfromwho);
             while(1){
 
                 for (nread=0; nread < sizeof(buf); nread += err){
                     err = SSL_read(ssl, buf + nread, sizeof(buf) - nread);
                     if (err <= 0)break;
                 }
-                if(strcmp(buf,"done\n")==0){fclose(fp);break;}
+                if(strcmp(buf,"DONE\n")==0){fclose(fp);break;}
                 fprintf(stdout,": %s",buf);
                 fprintf(fp,"%s",buf);
                 memset(buf, 0, sizeof(buf));
@@ -118,7 +124,7 @@ if (!acc)
 if(BIO_do_accept(acc)<=0)
     int_error("Error binding server socket");
 
-printf("성공\n");
+printf("server-client 연결 성공\n");
 tid = (THREAD_TYPE*)malloc(sizeof(THREAD_TYPE)*10);
 
 for(;;)
@@ -130,14 +136,12 @@ for(;;)
     if (!(ssl = SSL_new(ctx)))
         int_error("Error creating SSL context");
     
-    printf("\nClient[%d]의 SSL 연결 성공\n",clientnum+1);
-
+    printf("Client[%d]와의 SSL 연결 성공\n",clientnum);
 
     SSL_set_bio(ssl, client, client);
 
     clients[clientnum++]=ssl;
     
-
     pthread_create(&(tid[clientnum-1]), NULL, (void *)server_thread, ssl);
 }
 

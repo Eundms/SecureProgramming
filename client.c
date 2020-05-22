@@ -1,5 +1,5 @@
 #include "common.h"
-
+#include <string.h>
 #define CERTFILE "client.pem"
 SSL_CTX *setup_client_ctx(void)
 {
@@ -28,6 +28,7 @@ int  do_client_loop(SSL *ssl)
 			if(err<=0)
 				return 0;
 		}
+		if(strcmp(buf,"CLOSE\n")==0)break;
 	}
     return 1;
 }

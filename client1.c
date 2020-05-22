@@ -28,6 +28,7 @@ int  do_client_loop(SSL *ssl)
 			if(err<=0)
 				return 0;
 		}
+		if(strcmp(buf,"CLOSE\n")==0)break;
 	}
     return 1;
 }

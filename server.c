@@ -21,7 +21,7 @@ SSL_CTX *setup_server_ctx(void)
 }
 int do_server_loop(SSL *ssl)
 {
-    int err, nread;
+    int err, nread,nwritten;
     char buf[80];
     int readfromwho;
     do
@@ -32,6 +32,7 @@ int do_server_loop(SSL *ssl)
             if (err <= 0)
                 break;
         }
+        
         /*어떤 client인지 구분하는 방법: pthread_self()이용한다.*/
         for(int i=0;i<clientnum;i++){if(pthread_self()==tid[i])readfromwho=i;}
         /*반드시 이곳에서 lock을 걸고*/
@@ -51,9 +52,14 @@ int do_server_loop(SSL *ssl)
         if(strcmp(buf,"DOWNLOAD\n")==0){
             fprintf(stdout,"download request from client[%d]\n",readfromwho);
             fp=fopen("./downloadfile.txt","r");
-            /*char readbuf[80];
+            char readbuf[80];
             fgets(readbuf,sizeof(readbuf),fp);
-            SSL_write(clients[readfromwho],readbuf,strlen(readbuf));*/
+            for(nwritten=0; nwritten<sizeof(readbuf); nwritten+=err)
+		    {
+                err = SSL_write(clients[readfromwho], readbuf+nwritten, sizeof(readbuf)-nwritten);
+			if(err<=0)
+				return 0;
+		    }
         }
         /*write 요청*/
         if(strcmp(buf,"WRITE\n")==0){
@@ -73,7 +79,7 @@ int do_server_loop(SSL *ssl)
 
             }
         }
-
+        
         fprintf(stdout, "=======mutex_unlock(%d)======\n\n",readfromwho);
         /*반드시 이곳에서 unlock을 해야한다*/
         pthread_mutex_unlock(&mutex);
@@ -83,7 +89,6 @@ int do_server_loop(SSL *ssl)
 
     } 
     while (err > 0);
-    //종료된거니까 tid[readfromwho]에 있는 내용은 돌려주고 재사용할 수 있도록 하면 좋을텐데......
     return (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) ? 1 : 0;
 }
 void THREAD_CC server_thread(void *arg)
@@ -126,7 +131,7 @@ if (!acc)
 if(BIO_do_accept(acc)<=0)
     int_error("Error binding server socket");
 
-printf("server-client 연결 성공\n");
+printf("server 준비 성공\n");
 tid = (THREAD_TYPE*)malloc(sizeof(THREAD_TYPE)*10);
 
 for(;;)

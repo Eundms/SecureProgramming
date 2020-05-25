@@ -12,3 +12,15 @@ AAAA
 dONE
 a
 b
+a
+a
+a
+b
+c
+write
+write
+a
+a
+a
+a
+DONENE

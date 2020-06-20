@@ -46,9 +46,9 @@ int do_server_loop(SSL *ssl)
     
 
         /*반드시 이곳에서 lock을 걸고*/
-        fprintf(stdout, "=======mutex_lock(%d)======\n",readfromwho);
         fprintf(stdout,"Server read from client[%d]:",readfromwho);
         pthread_mutex_lock(&mutex);
+        fprintf(stdout, "=======mutex_lock(%d)======\n",readfromwho);
 
         /*읽은 내용 서버에 보여준다*/
         fprintf(stdout, "%s", buf);

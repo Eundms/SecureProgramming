@@ -1,14 +1,5 @@
-hello it;s cient1
-abc
-def
-hello
-it
-s
-me
-hahah 
-asdf
-d
-AAAA
-dONE
-a
-b
+client [0] : 안녕하세요 저는 client_0 입니다.
+client [0] : 히히.
+client [1] : 안녕하세요. 저는 client_1 입니다.
+client [1] : 제가 다 썼습니다.
+client [0] : 그 다음에 제 씁니다.

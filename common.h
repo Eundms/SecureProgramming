@@ -22,7 +22,7 @@
                                             (tid) = GetCurrentThreadId(); \
                                             } while (0)
 #endif
-#define PORT "16001"
+#define PORT "8088"
 #define SERVER "localhost"
 #define CLIENT "localhost"
 
